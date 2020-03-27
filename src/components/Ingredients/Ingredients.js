@@ -18,11 +18,9 @@ const Ingredients = () => {
         );
     };
 
-    const removeIngredient = (id, obj) => {
-        const newIngredients = userIngredients.filter(ig => ig.id !== id);
-        setUserIngredients(() => [
-                ...newIngredients
-            ]
+    const removeIngredientHander = ingredientId => {
+        setUserIngredients(prevIngredients =>
+            prevIngredients.filter((ingredient) => ingredient.id !== ingredientId)
         );
     };
 
@@ -34,9 +32,7 @@ const Ingredients = () => {
                 <Search/>
                 {/* Need to add list here! */}
                 <IngredientList ingredients={userIngredients}
-                                onRemoveItem={(id, obj) => {
-                                    removeIngredient(id, obj)
-                                }}/>
+                                onRemoveItem={removeIngredientHander}/>
             </section>
         </div>
     );
