@@ -7,10 +7,13 @@ import IngredientList from "./IngredientList";
 const Ingredients = () => {
     const [userIngredients, setUserIngredients] = useState([]);
 
+    const filteredIngredientsHandler = filteredIngredients => {
+        setUserIngredients(filteredIngredients);
+    };
+
     useEffect(() => {
         fetch('https://react-hooks-update-e2b52.firebaseio.com/ingredients.json')
-            .then(
-                response => response.json())
+            .then(response => response.json())
             .then(responseData => {
                 const loadedIngredients = [];
                 for (const key in responseData) {
@@ -20,7 +23,7 @@ const Ingredients = () => {
                         amount: responseData[key].amount
                     });
                 }
-                // setUserIngredients(loadedIngredients);
+                setUserIngredients(loadedIngredients);
             });
     }, []);
 
@@ -57,7 +60,7 @@ const Ingredients = () => {
             <IngredientForm onAddIngredient={addIngredientHandler}/>
 
             <section>
-                <Search/>
+                <Search onLoadIngredients={filteredIngredientsHandler}/>
                 {/* Need to add list here! */}
                 <IngredientList ingredients={userIngredients}
                                 onRemoveItem={removeIngredientHander}/>
