@@ -49,7 +49,7 @@ const Ingredients = () => {
         console.log('RENDERING INGREDIENTS', userIngredients)
     }, [userIngredients]);
 
-    const addIngredientHandler = ingredient => {
+    const addIngredientHandler = useCallback(ingredient => {
         dispatchHttp({type: 'SEND'});
         fetch('https://react-hooks-update-e2b52.firebaseio.com/ingredients.json', {
             method: 'POST',
@@ -74,9 +74,9 @@ const Ingredients = () => {
                 }
             });
         });
-    };
+    }, []);
 
-    const removeIngredientHander = ingredientId => {
+    const removeIngredientHander = useCallback(ingredientId => {
         dispatchHttp({type: 'SEND'});
         fetch(`https://react-hooks-update-e2b52.firebaseio.com/ingredients/${ingredientId}.json`, {
             method: 'DELETE'
@@ -93,7 +93,7 @@ const Ingredients = () => {
             dispatchHttp({type: 'ERROR', errorMessage: 'Something went wrong!'});
             // setError(error.message);
         });
-    };
+    }, []);
 
     const clearError = () => {
         dispatchHttp({type: 'CLEAR'});
