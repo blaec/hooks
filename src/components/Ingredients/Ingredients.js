@@ -1,4 +1,4 @@
-import React, {useReducer, useState, useEffect, useCallback, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useReducer} from 'react';
 
 import IngredientForm from './IngredientForm';
 import Search from './Search';
@@ -15,13 +15,13 @@ const ingredientReducer = (currentIngredients, action) => {
         case 'DELETE':
             return currentIngredients.filter(ing => ing.id !== action.id);
         default:
-            throw new Error('Should not get there!')
+            throw new Error('Should not get there!');
     }
 };
 
 const Ingredients = () => {
     const [userIngredients, dispatch] = useReducer(ingredientReducer, []);
-    const {isLoading, error, data, sendRequest} = useHttp();
+    const {isLoading, error, data, sendRequest, reqExtra, reqIdentifier} = useHttp();
 
     const filteredIngredientsHandler = useCallback(filteredIngredients => {
         // setUserIngredients(filteredIngredients);
@@ -32,10 +32,28 @@ const Ingredients = () => {
     }, []);
 
     useEffect(() => {
-        console.log('RENDERING INGREDIENTS', userIngredients)
-    }, [userIngredients]);
+        if (!isLoading && !error && reqIdentifier === 'REMOVE_INGREDIENT') {
+            dispatch({type: 'DELETE', id: reqExtra});
+        } else if (!isLoading && !error && reqIdentifier === 'ADD_INGREDIENT') {
+            dispatch({
+                type: 'ADD',
+                ingredient: {
+                    id: data.name,
+                    ...reqExtra
+                }
+            });
+        }
+    }, [data, reqExtra, reqIdentifier, isLoading, error]);
 
     const addIngredientHandler = useCallback(ingredient => {
+        sendRequest(
+            'https://react-hooks-update-e2b52.firebaseio.com/ingredients.json',
+            'POST',
+            JSON.stringify(ingredient),
+            ingredient,
+            'ADD_INGREDIENT'
+        );
+
         // dispatchHttp({type: 'SEND'});
         // fetch('https://react-hooks-update-e2b52.firebaseio.com/ingredients.json', {
         //     method: 'POST',
@@ -60,12 +78,15 @@ const Ingredients = () => {
         //         }
         //     });
         // });
-    }, []);
+    }, [sendRequest]);
 
     const removeIngredientHandler = useCallback(ingredientId => {
         sendRequest(
             `https://react-hooks-update-e2b52.firebaseio.com/ingredients/${ingredientId}.json`,
-            'DELETE'
+            'DELETE',
+            null,
+            ingredientId,
+            'REMOVE_INGREDIENT'
         )
     }, [sendRequest]);
 
@@ -88,7 +109,6 @@ const Ingredients = () => {
 
             <section>
                 <Search onLoadIngredients={filteredIngredientsHandler}/>
-                {/* Need to add list here! */}
                 {ingredientList}
             </section>
         </div>
